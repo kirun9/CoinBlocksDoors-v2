@@ -16,7 +16,7 @@ namespace kirun9.scpsl.plugins.CoinBlocksDoors.Handlers
             Config = config;
         }
 
-        public void OnInteractingDoor2(InteractingDoorEventArgs ev)
+        public void OnInteractingDoor(InteractingDoorEventArgs ev)
         {
             try
             {
@@ -30,7 +30,7 @@ namespace kirun9.scpsl.plugins.CoinBlocksDoors.Handlers
                     ev.IsAllowed = false;
                     if (Config.TimeLock)
                     {
-                        CBDPlugin.Coroutines.AddItem(Timing.RunCoroutine(LockDoor2(ev.Door), Segment.Update));
+                        CBDPlugin.Coroutines.AddItem(Timing.RunCoroutine(LockDoor(ev.Door), Segment.Update));
                     }
                     else
                     {
@@ -76,7 +76,7 @@ namespace kirun9.scpsl.plugins.CoinBlocksDoors.Handlers
             }
         }
 
-        public IEnumerator<float> LockDoor2(Door door)
+        public IEnumerator<float> LockDoor(Door door)
         {
             yield return Timing.WaitForOneFrame;
             yield return Timing.WaitUntilFalse(() => door.Networklocked);

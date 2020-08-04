@@ -35,7 +35,7 @@ namespace kirun9.scpsl.plugins.CoinBlocksDoors
 
             if (Config.IsEnabled)
             {
-                Exiled.Events.Handlers.Player.InteractingDoor += Player.OnInteractingDoor2;
+                Exiled.Events.Handlers.Player.InteractingDoor += Player.OnInteractingDoor;
                 harmony = new Harmony("kirun9.cbd." + ++HarmonyCounter);
                 harmony.PatchAll();
             }
@@ -44,7 +44,7 @@ namespace kirun9.scpsl.plugins.CoinBlocksDoors
         {
             base.OnDisabled();
 
-            Exiled.Events.Handlers.Player.InteractingDoor -= Player.OnInteractingDoor2;
+            Exiled.Events.Handlers.Player.InteractingDoor -= Player.OnInteractingDoor;
             harmony?.UnpatchAll(harmony.Id);
         }
     }
