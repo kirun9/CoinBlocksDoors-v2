@@ -26,7 +26,7 @@ namespace kirun9.scpsl.plugins.CoinBlocksDoors.Handlers
 
                 if (item == ItemType.Coin)
                 {
-                    if (CBDPlugin.DoorsBlocked >= Config.MaxUsesPerRound && Config.MaxUsesPerRound != 0)
+                    if (CBDPlugin.DoorsBlocked >= Config.MaxUsesPerRound && Config.MaxUsesPerRound >= 0)
                     {
                         ev.IsAllowed = true;
                         if (Config.UseBroadcast) ev.Player.Broadcast(Config.MessageDisplayTime, Config.Translations.TooManyUses, Broadcast.BroadcastFlags.Normal);
