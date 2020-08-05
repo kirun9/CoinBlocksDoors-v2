@@ -79,6 +79,7 @@
     <Compile Include="DoorExtension.cs" />
     <Compile Include="DoorItem.cs" />
     <Compile Include="Handlers\Player.cs" />
+    <Compile Include="Handlers\Server.cs" />
     <Compile Include="Patches\DoorChangeState079.cs" />
     <Compile Include="Patches\DoorUpdateLock.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
