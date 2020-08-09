@@ -17,6 +17,8 @@ namespace kirun9.scpsl.plugins.CoinBlocksDoors
         public bool BlockScp079 { get; set; } = true;
         [Description("Indicates how many times (in total) doors can be blocked during one round. Set 0 to unlimited")]
         public int MaxUsesPerRound { get; set; } = 0;
+        [Description("Indicates how many times one player can block doors during one round. Set 0 to unlimited")]
+        public int MaxUsesPerPlayer { get; set; } = 0;
         [Description("Message display time")]
         public ushort MessageDisplayTime { get; set; } = 3;
         [Description("Minimum amount of interaction needed to unlock door")]
@@ -30,6 +32,7 @@ namespace kirun9.scpsl.plugins.CoinBlocksDoors
         [Description("MAximum amount of time needed to automaticaly unlock door (in seconds)")]
         public float MaxTime { get; set; } = 25f;
 
+
         public Translations Translations { get; set; } = new Translations();
     }
 
@@ -41,5 +44,7 @@ namespace kirun9.scpsl.plugins.CoinBlocksDoors
         public string BlockedTimeInfo { get; set; } = "It looks like something is stuck in the door.\nOur Facility Advanced Door Mechanism Cleaning System is cleaning door mechanism right now";
         [Description("Message to display when user can't block another door")]
         public string TooManyUses { get; set; } = "Your block was unsuccessful.\nFacility Advanced Door Mechanism Cleaning System removed coin immediately.";
+        [Description("Message to display when user don't have permissions")]
+        public string MissingPermissions { get; set; }
     }
 }

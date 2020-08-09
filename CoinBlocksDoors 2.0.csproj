@@ -52,6 +52,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\SCP Libs\Exiled.Events.dll</HintPath>
     </Reference>
+    <Reference Include="Exiled.Permissions">
+      <HintPath>..\..\SCP Libs\Exiled.Permissions.dll</HintPath>
+    </Reference>
     <Reference Include="Mirror, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\SCP Libs\Mirror.dll</HintPath>

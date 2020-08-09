@@ -4,6 +4,7 @@ using MEC;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using Exiled.Permissions.Extensions;
 
 namespace kirun9.scpsl.plugins.CoinBlocksDoors.Handlers
 {
@@ -22,33 +23,44 @@ namespace kirun9.scpsl.plugins.CoinBlocksDoors.Handlers
             {
                 var item = ev.Player.Inventory.GetItemInHand().id;
                 var doorId = ev.Door.GetInstanceID();
+                var player = Exiled.API.Features.Player.Get(ev.Player.ReferenceHub);
                 if (ev.Door.PermissionLevels == Door.AccessRequirements.Checkpoints) return;
 
                 if (item == ItemType.Coin)
                 {
-                    if (CBDPlugin.DoorsBlocked >= Config.MaxUsesPerRound && Config.MaxUsesPerRound >= 0)
+                    if (!Permissions.CheckPermission(player.CommandSender, "cbd.blockdoor"))
                     {
                         ev.IsAllowed = true;
-                        if (Config.UseBroadcast) ev.Player.Broadcast(Config.MessageDisplayTime, Config.Translations.TooManyUses, Broadcast.BroadcastFlags.Normal);
-                        else ev.Player.ShowHint(Config.Translations.TooManyUses, Config.MessageDisplayTime);
+                        if (!Config.UseBroadcast) ev.Player.ShowHint(Config.Translations.MissingPermissions, Config.MessageDisplayTime);
+                        else ev.Player.Broadcast(Config.MessageDisplayTime, Config.Translations.MissingPermissions, Broadcast.BroadcastFlags.Normal);
                     }
                     else
                     {
-                        ev.IsAllowed = false;
-                        if (Config.TimeLock)
+                        if (CBDPlugin.DoorsBlocked >= Config.MaxUsesPerRound && Config.MaxUsesPerRound > 0 ||
+                            CBDPlugin.Players[player.UserId] >= Config.MaxUsesPerPlayer && Config.MaxUsesPerPlayer > 0)
                         {
-                            CBDPlugin.Coroutines.AddItem(Timing.RunCoroutine(LockDoor(ev.Door, ev.Player), Segment.Update));
+                            ev.IsAllowed = true;
+                            if (Config.UseBroadcast) ev.Player.Broadcast(Config.MessageDisplayTime, Config.Translations.TooManyUses, Broadcast.BroadcastFlags.Normal);
+                            else ev.Player.ShowHint(Config.Translations.TooManyUses, Config.MessageDisplayTime);
                         }
                         else
                         {
-                            var random = (Config.MinUses > 0) ? (Config.MinUses < Config.MaxUses) ? UnityEngine.Random.Range(Config.MinUses, Config.MaxUses) : (Config.MinUses == Config.MaxUses) ? Config.MinUses : Config.MinUses : 1;
+                            ev.IsAllowed = false;
+                            if (Config.TimeLock)
+                            {
+                                CBDPlugin.Coroutines.AddItem(Timing.RunCoroutine(LockDoor(ev.Door, ev.Player), Segment.Update));
+                            }
+                            else
+                            {
+                                var random = (Config.MinUses > 0) ? (Config.MinUses < Config.MaxUses) ? UnityEngine.Random.Range(Config.MinUses, Config.MaxUses) : (Config.MinUses == Config.MaxUses) ? Config.MinUses : Config.MinUses : 1;
 
-                            AddDoor(doorId, new DoorItem(ev.Door, random), ev.Player);
+                                AddDoor(doorId, new DoorItem(ev.Door, random), ev.Player);
 
-                            if (!Config.SilentBlock) ev.Door.UpdateLock();
-                            ev.Player.Inventory.items.RemoveAt(ev.Player.Inventory.GetItemIndex());
+                                if (!Config.SilentBlock) ev.Door.UpdateLock();
+                                ev.Player.Inventory.items.RemoveAt(ev.Player.Inventory.GetItemIndex());
+                            }
+                            return;
                         }
-                        return;
                     }
                 }
                 
@@ -58,19 +70,16 @@ namespace kirun9.scpsl.plugins.CoinBlocksDoors.Handlers
                         
                     if (!Config.UseBroadcast) ev.Player.ShowHint(Config.TimeLock ? Config.Translations.BlockedTimeInfo : Config.Translations.BlockedInfo, Config.MessageDisplayTime);
                     else ev.Player.Broadcast(Config.MessageDisplayTime, Config.TimeLock ? Config.Translations.BlockedTimeInfo : Config.Translations.BlockedInfo, Broadcast.BroadcastFlags.Normal);
-                        
-                    if (!Config.TimeLock)
+
+                    var door = CBDPlugin.Doors[doorId];
+                    door.Used++;
+                    if (door.Used >= door.MaxUses)
                     {
-                        var door = CBDPlugin.Doors[doorId];
-                        door.Used++;
-                        if (door.Used >= door.MaxUses)
-                        {
-                            CBDPlugin.Doors.Remove(doorId);
-                        }
-                        else
-                        {
-                            CBDPlugin.Doors[doorId] = door;
-                        }
+                        CBDPlugin.Doors.Remove(doorId);
+                    }
+                    else
+                    {
+                        CBDPlugin.Doors[doorId] = door;
                     }
                     ev.Door.UpdateLock();
                 }
@@ -86,15 +95,17 @@ namespace kirun9.scpsl.plugins.CoinBlocksDoors.Handlers
         {
             if (CBDPlugin.Doors.ContainsKey(doorId)) CBDPlugin.Doors[doorId].MaxUses += doorInfo.MaxUses;
             else CBDPlugin.Doors.Add(doorId, doorInfo);
+            if (CBDPlugin.Players.ContainsKey(player.UserId)) CBDPlugin.Players[player.UserId]++;
+            else CBDPlugin.Players.Add(player.UserId, 1);
             CBDPlugin.DoorsBlocked++;
         }
 
-        public IEnumerator<float> LockDoor(Door door, Exiled.API.Features.Player player)
+        public IEnumerator<float> LockDoor(Door door, Exiled.API.Features.Player player, int maxUses = 0)
         {
             yield return Timing.WaitForOneFrame;
             yield return Timing.WaitUntilFalse(() => door.Networklocked);
 
-            var doorItem = new DoorItem(door, 0);
+            var doorItem = new DoorItem(door, maxUses);
             AddDoor(door.GetInstanceID(), doorItem, player);
             
             player.Inventory.items.RemoveAt(player.Inventory.GetItemIndex());

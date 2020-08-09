@@ -20,6 +20,7 @@ namespace kirun9.scpsl.plugins.CoinBlocksDoors
 
         public static IEnumerable<MEC.CoroutineHandle> Coroutines;
         public static Dictionary<int, DoorItem> Doors = new Dictionary<int, DoorItem>();
+        public static Dictionary<string, int> Players = new Dictionary<string, int>();
 
         private Handlers.Player Player;
         private Handlers.Server Server;
