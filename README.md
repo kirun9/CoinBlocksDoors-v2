@@ -1,3 +1,5 @@
+#This plugin is not compatible with newest version of SCP SL
+Due to changes in SCP SL API and lack of time, this plugin will not be updated for newest version of SCP SL
 ﻿# EXILED 2.0 Plugin for SCP SL
 https://github.com/galaxy119/EXILED
  # CoinBlocksDoors
